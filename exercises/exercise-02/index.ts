@@ -65,7 +65,11 @@ const persons: Person[] = [
 
 function logPerson(person: Person) {
     let additionalInformation: string;
-    if (person.role) {
+    function isAdmin(person: Person): person is Admin {
+        // return !!(person as Admin).role
+        return person.hasOwnProperty('role')
+    }
+    if (isAdmin(person)) {
         additionalInformation = person.role;
     } else {
         additionalInformation = person.occupation;
