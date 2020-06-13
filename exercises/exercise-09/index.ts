@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { resolve } from 'dns';
 
 /*
 
@@ -18,6 +19,7 @@ Higher difficulty exercise:
     We don't want to reimplement all the data-requesting
     functions. Let's decorate the old callback-based
     functions with the new Promise-compatible result.
+
     The final function should return a Promise which
     would resolve with the final data directly
     (i.e. users or admins) or would reject with an error.
@@ -71,8 +73,19 @@ type ApiResponse<T> = (
     }
 );
 
-function promisify(arg: unknown): unknown {
-    return null;
+type oldFunctionDefiniation<T> = (callback: (response: ApiResponse<T>) => void) => void;
+type PromisifyNewFunctionDefinition<T> = () => Promise<T>
+
+function promisify<T>(oldFunction: oldFunctionDefiniation<T>): PromisifyNewFunctionDefinition<T> {
+    return () => new Promise((resolve, reject) => {
+        oldFunction((response) => {
+            if (response.status === 'error') {
+                reject(new Error(response.error));
+                return;
+            }
+            resolve(response.data);
+        })
+    });
 }
 
 const oldApi = {
